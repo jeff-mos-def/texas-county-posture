@@ -1,0 +1,120 @@
+---
+// Find any Texas county by name. Without JavaScript the form opens the county index.
+import { texasCounties } from "../lib/texas";
+import { postureText, type County } from "../lib/counties";
+
+interface Props {
+  profiles: { href: string; county: County }[];
+}
+const { profiles } = Astro.props;
+const byFips = new Map(profiles.filter((p) => p.county.fips).map((p) => [p.county.fips!, p]));
+const entries = [
+  ...texasCounties.map((c) => {
+    const p = byFips.get(c.fips);
+    return { name: `${c.name} County`, href: p?.href ?? null, status: p ? postureText(p.county) : "Not yet profiled" };
+  }),
+  ...profiles
+    .filter((p) => !p.county.fips)
+    .map((p) => ({ name: p.county.name, href: p.href, status: `${postureText(p.county)}${p.county.sample ? " (sample)" : ""}` })),
+].sort((a, b) => a.name.localeCompare(b.name));
+---
+
+<form class="county-search" action="/counties/" method="get" role="search">
+  <label for="county-q">Find a county</label>
+  <input id="county-q" name="q" type="search" autocomplete="off" placeholder="Type a county name" />
+  <ul class="results" hidden></ul>
+  <script type="application/json" class="county-data" set:html={JSON.stringify(entries)} />
+</form>
+
+<style>
+  .county-search label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  .county-search input {
+    width: 100%;
+    font: inherit;
+    font-size: 1.0625rem;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 6px;
+    background: var(--color-surface);
+    color: var(--color-ink);
+  }
+  .county-search input:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 1px;
+  }
+  .results {
+    list-style: none;
+    padding: 0;
+    margin: 0.4rem 0 0;
+    border: 1px solid var(--color-grid);
+    border-radius: 6px;
+    background: var(--color-surface);
+  }
+  .results[hidden] {
+    display: none;
+  }
+  .results :global(li) {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0.8rem;
+    border-bottom: 1px solid var(--color-grid);
+    font-size: 0.9375rem;
+  }
+  .results :global(li:last-child) {
+    border-bottom: 0;
+  }
+  .results :global(.status) {
+    color: var(--color-ink-2);
+    text-align: right;
+  }
+</style>
+
+<script>
+  type Entry = { name: string; href: string | null; status: string };
+  for (const form of document.querySelectorAll<HTMLFormElement>(".county-search")) {
+    const input = form.querySelector<HTMLInputElement>("input")!;
+    const list = form.querySelector<HTMLUListElement>(".results")!;
+    const data: Entry[] = JSON.parse(form.querySelector(".county-data")!.textContent ?? "[]");
+
+    const renderResults = () => {
+      const q = input.value.trim().toLowerCase();
+      list.replaceChildren();
+      if (!q) {
+        list.hidden = true;
+        return;
+      }
+      const hits = data.filter((d) => d.name.toLowerCase().includes(q)).slice(0, 8);
+      for (const h of hits) {
+        const li = document.createElement("li");
+        const name = document.createElement(h.href ? "a" : "span");
+        name.textContent = h.name;
+        if (h.href) (name as HTMLAnchorElement).href = h.href;
+        const status = document.createElement("span");
+        status.className = "status";
+        status.textContent = h.status;
+        li.append(name, status);
+        list.append(li);
+      }
+      if (!hits.length) {
+        const li = document.createElement("li");
+        li.textContent = "No Texas county matches that name.";
+        list.append(li);
+      }
+      list.hidden = false;
+    };
+
+    input.addEventListener("input", renderResults);
+    form.addEventListener("submit", (e) => {
+      const first = list.querySelector<HTMLAnchorElement>("a");
+      if (first) {
+        e.preventDefault();
+        window.location.href = first.href;
+      }
+    });
+  }
+</script>

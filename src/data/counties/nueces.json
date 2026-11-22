@@ -1,0 +1,191 @@
+{
+  "name": "Nueces County",
+  "fips": "48355",
+  "sample": false,
+  "updated": "2026-11-22",
+  "posture": {
+    "label": "Lean D",
+    "trend": "toward D",
+    "previous": {
+      "label": "Lean R",
+      "year": 2022
+    }
+  },
+  "population": {
+    "total": 352955,
+    "changePct": -2.37,
+    "baseline": "2015–2019 ACS"
+  },
+  "registeredVoters": 223303,
+  "precincts": 130,
+  "turnout": [
+    {
+      "year": 2022,
+      "pct": 41.95,
+      "ballots": 89744
+    },
+    {
+      "year": 2026,
+      "pct": 45.3,
+      "ballots": 101158
+    }
+  ],
+  "votesAdded": {
+    "since": 2022,
+    "dem": 14207,
+    "rep": -4128
+  },
+  "topRace": {
+    "year": 2026,
+    "race": "U.S. Senate",
+    "rep": 43.3,
+    "dem": 54.5,
+    "other": 2.2
+  },
+  "marginHistory": [
+    {
+      "year": 2018,
+      "race": "U.S. Senate",
+      "margin": -1.527
+    },
+    {
+      "year": 2022,
+      "race": "Governor",
+      "margin": 7.943
+    },
+    {
+      "year": 2024,
+      "race": "President",
+      "margin": 11.467
+    },
+    {
+      "year": 2026,
+      "race": "U.S. Senate",
+      "margin": -11.2
+    }
+  ],
+  "shiftBaselines": [
+    2022,
+    2018
+  ],
+  "areas": {
+    "before": 2022,
+    "after": 2026,
+    "list": []
+  },
+  "downBallot": [
+    {
+      "slug": "county-judge",
+      "race": "County Judge",
+      "result": "D flip",
+      "margin": -0.371,
+      "topOfTicket": -11.2,
+      "topOfTicketArea": "countywide"
+    },
+    {
+      "slug": "county-clerk",
+      "race": "County Clerk",
+      "result": "D flip",
+      "margin": -1.94,
+      "topOfTicket": -11.2,
+      "topOfTicketArea": "countywide"
+    },
+    {
+      "slug": "district-clerk",
+      "race": "District Clerk",
+      "result": "D flip",
+      "margin": -1.9,
+      "topOfTicket": -11.2,
+      "topOfTicketArea": "countywide"
+    },
+    {
+      "slug": "county-court-at-law-2",
+      "race": "County Court-at-Law No. 2",
+      "result": "D hold",
+      "margin": -9.0,
+      "topOfTicket": -11.2,
+      "topOfTicketArea": "countywide"
+    },
+    {
+      "slug": "county-court-at-law-3",
+      "race": "County Court-at-Law No. 3",
+      "result": "D hold",
+      "margin": -7.673,
+      "topOfTicket": -11.2,
+      "topOfTicketArea": "countywide"
+    }
+  ],
+  "demographics": {
+    "source": "ACS 5-year 2020–2024",
+    "shares": [
+      {
+        "slug": "hispanic",
+        "name": "Hispanic or Latino",
+        "pct": 62.47
+      },
+      {
+        "slug": "moved-in",
+        "name": "Households that moved in 2020 or later",
+        "pct": 27.91
+      }
+    ],
+    "medianAge": 37.2,
+    "medianHouseholdIncome": 66897
+  },
+  "sources": [
+    {
+      "name": "Nueces County Clerk Elections Department, official cumulative report, Nov. 3, 2026",
+      "use": "2026 results"
+    },
+    {
+      "name": "Nueces County Clerk Elections Department, official canvass report, Nov. 3, 2026",
+      "use": "2026 turnout, registered voters, precinct count"
+    },
+    {
+      "name": "Nueces County Clerk Elections Department, official cumulative results, Nov. 5, 2024",
+      "use": "2024 President, 2024 county races"
+    },
+    {
+      "name": "Nueces County Clerk Elections Department, official cumulative results, Nov. 8, 2022",
+      "use": "2022 Governor, 2022 turnout"
+    },
+    {
+      "name": "Nueces County Clerk Elections Department, official primary runoff results, May 26, 2026",
+      "use": "Commissioner Precinct 2 Democratic runoff"
+    },
+    {
+      "name": "Texas Secretary of State, 2018 General Election canvass, U.S. Senator by county",
+      "use": "2018 U.S. Senate"
+    },
+    {
+      "name": "Census ACS 5-year 2020–2024 (B01003, B01002, B03003, B19013, B25038)",
+      "use": "demographics"
+    },
+    {
+      "name": "Census ACS 5-year 2015–2019 (B01003)",
+      "use": "population change baseline"
+    },
+    {
+      "name": "Census 2024 Gazetteer, Texas counties",
+      "use": "land and water area, coordinates"
+    },
+    {
+      "name": "Census county-level 2020 urban and rural information",
+      "use": "percent urban and rural"
+    },
+    {
+      "name": "Handbook of Texas, Nueces County",
+      "use": "county seat, year established"
+    }
+  ],
+  "details": {
+    "website": "https://www.nuecesco.com/",
+    "seat": "Corpus Christi",
+    "established": 1846,
+    "landSqMi": 839.287,
+    "waterSqMi": 326.289,
+    "urbanPct": 93.72,
+    "latitude": 27.740032,
+    "longitude": -97.516214
+  }
+}

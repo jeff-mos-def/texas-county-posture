@@ -1,0 +1,128 @@
+---
+import { getCounty } from "../../lib/counties";
+import { renderResponsive, Plot, marginTick, marginDomain, ink } from "../../lib/plot";
+import { derive, formatMargin } from "../../lib/facts.mjs";
+import { party } from "../../config";
+import NumbersTable from "../NumbersTable.astro";
+
+interface Props {
+  county: string;
+}
+const c = await getCounty(Astro.props.county);
+const top = c.topRace;
+const rows = derive(c).downBallot as Array<(typeof c.downBallot)[number] & { vsTop: number }>;
+const [lo, hi] = marginDomain(rows.flatMap((r) => [r.margin, r.topOfTicket]));
+const side = (m: number) => (m > 0 ? party.rep : m < 0 ? party.dem : party.other);
+const ahead = (r: (typeof rows)[number]) => {
+  // Points the local candidate ran ahead of their party's top-of-ticket nominee.
+  const local = r.margin >= 0 ? "R" : "D";
+  const gap = local === "R" ? r.margin - r.topOfTicket : r.topOfTicket - r.margin;
+  return `${Math.abs(gap).toFixed(1)} ${gap >= 0 ? "ahead of" : "behind"} the top of the ticket`;
+};
+
+const svg = renderResponsive((width) => ({
+  width,
+  height: 36 + rows.length * 66,
+  marginLeft: 22,
+  marginRight: 64,
+  marginTop: 4,
+  marginBottom: 28,
+  x: { domain: [lo, hi], label: null, tickFormat: marginTick, ticks: width < 500 ? 3 : 6, tickSize: 0 },
+  y: { type: "band", domain: rows.map((r) => r.race), label: null, axis: null, padding: 0 },
+  marks: [
+    Plot.gridX({ stroke: ink.grid, strokeOpacity: 1, ticks: width < 500 ? 3 : 6 }),
+    Plot.ruleX([0], { stroke: ink.rule }),
+    Plot.text(rows, {
+      x: lo,
+      y: "race",
+      text: "race",
+      dy: -20,
+      textAnchor: "start",
+      fill: ink.ink,
+      fontSize: 14,
+      fontWeight: 600,
+    }),
+    Plot.link(rows, {
+      x1: "topOfTicket",
+      x2: "margin",
+      y1: "race",
+      y2: "race",
+      dy: 6,
+      stroke: ink.rule,
+      strokeWidth: 2,
+    }),
+    Plot.tickX(rows, {
+      x: "topOfTicket",
+      y: "race",
+      dy: 6,
+      stroke: ink.ink,
+      strokeWidth: 2,
+      insetTop: 24,
+      insetBottom: 24,
+    }),
+    Plot.dot(rows, {
+      x: "margin",
+      y: "race",
+      dy: 6,
+      r: 6,
+      fill: (d) => side(d.margin),
+      stroke: ink.surface,
+      strokeWidth: 2,
+    }),
+    Plot.text(rows, {
+      x: hi,
+      y: "race",
+      dy: 6,
+      text: "result",
+      dx: 12,
+      textAnchor: "start",
+      fill: ink.ink,
+      fontWeight: 700,
+      fontSize: 14,
+    }),
+    Plot.ruleY(rows, {
+      y: "race",
+      x1: lo,
+      x2: hi,
+      stroke: "transparent",
+      strokeWidth: 60,
+      title: (d) =>
+        `${d.race}: ${d.result}, ${formatMargin(d.margin)}\nTop of ticket (${d.topOfTicketArea}): ${formatMargin(d.topOfTicket)}\n${ahead(d)}`,
+    }),
+  ],
+}));
+---
+
+<figure class="viz" aria-labelledby={`downballot-${Astro.props.county}`}>
+  <figcaption>
+    <p class="viz-title" id={`downballot-${Astro.props.county}`}>Local races against the top of the ticket, {top.year}</p>
+    <p class="viz-sub">
+      The tick is the {top.race} margin in the same area. Distance from the tick is how far the local race ran from it.
+    </p>
+  </figcaption>
+  <ul class="viz-key" aria-hidden="true">
+    <li>
+      <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill={party.rep}></circle></svg>
+      Local race, Republican side
+    </li>
+    <li>
+      <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill={party.dem}></circle></svg>
+      Local race, Democratic side
+    </li>
+    <li>
+      <svg width="6" height="16" viewBox="0 0 6 16"><line x1="3" y1="1" x2="3" y2="15" stroke={ink.ink} stroke-width="2"></line></svg>
+      {top.race}, same area
+    </li>
+  </ul>
+  <div
+    role="img"
+    aria-label={rows.map((r) => `${r.race}: ${r.result}, ${formatMargin(r.margin)}, ${ahead(r)}`).join(". ")}
+    set:html={svg}
+  />
+  <NumbersTable
+    caption="Local races against the top of the ticket"
+    head={["Race", "Result", "Margin", `${top.race}, same area`, "Compared with the top of the ticket"]}
+    rows={rows.map((r) => [r.race, r.result, formatMargin(r.margin), `${formatMargin(r.topOfTicket)} (${r.topOfTicketArea})`, ahead(r)])}
+    numeric={[2]}
+  />
+</figure>

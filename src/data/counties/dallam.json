@@ -1,0 +1,146 @@
+{
+  "name": "Dallam County",
+  "fips": "48111",
+  "sample": false,
+  "updated": "2026-11-22",
+  "posture": {
+    "label": "Safe R",
+    "trend": "toward D",
+    "previous": {
+      "label": "Safe R",
+      "year": 2022
+    }
+  },
+  "population": {
+    "total": 7298,
+    "changePct": -0.08,
+    "baseline": "2015–2019 ACS"
+  },
+  "registeredVoters": 2846,
+  "precincts": 9,
+  "turnout": [
+    {
+      "year": 2022,
+      "pct": 36.23,
+      "ballots": 1050
+    },
+    {
+      "year": 2026,
+      "pct": 36.16,
+      "ballots": 1029
+    }
+  ],
+  "votesAdded": {
+    "since": 2022,
+    "dem": 163,
+    "rep": -206
+  },
+  "topRace": {
+    "year": 2026,
+    "race": "U.S. Senate",
+    "rep": 73.44,
+    "dem": 23.54,
+    "other": 3.03
+  },
+  "marginHistory": [
+    {
+      "year": 2018,
+      "race": "U.S. Senate",
+      "margin": 74.529
+    },
+    {
+      "year": 2022,
+      "race": "Governor",
+      "margin": 83.81
+    },
+    {
+      "year": 2024,
+      "race": "President",
+      "margin": 78.225
+    },
+    {
+      "year": 2026,
+      "race": "U.S. Senate",
+      "margin": 49.9
+    }
+  ],
+  "shiftBaselines": [
+    2022,
+    2018
+  ],
+  "areas": {
+    "before": 2022,
+    "after": 2026,
+    "list": []
+  },
+  "downBallot": [],
+  "demographics": {
+    "source": "ACS 5-year 2020–2024",
+    "shares": [
+      {
+        "slug": "hispanic",
+        "name": "Hispanic or Latino",
+        "pct": 54.33
+      },
+      {
+        "slug": "moved-in",
+        "name": "Households that moved in 2020 or later",
+        "pct": 37.78
+      }
+    ],
+    "medianAge": 29.9,
+    "medianHouseholdIncome": 71500
+  },
+  "sources": [
+    {
+      "name": "Dallam County, summary results report, UNOFFICIAL RESULTS, Nov. 3, 2026 (election night, 7:44 PM)",
+      "use": "2026 results, ballots, registered voters, precinct count; the county has not posted its official canvass"
+    },
+    {
+      "name": "Texas Secretary of State canvass, 2022 Governor, as tabulated by texascounties.net",
+      "use": "2022 Governor (secondary source)"
+    },
+    {
+      "name": "Texas Secretary of State, Dallam County voter registration figures",
+      "use": "2022 turnout; the state's 2022 Voted figure equals the governor-race vote total, not ballots cast"
+    },
+    {
+      "name": "Texas Secretary of State canvass, 2024 President, as tabulated by texascounties.net",
+      "use": "2024 President (secondary source)"
+    },
+    {
+      "name": "Texas Secretary of State, 2018 General Election canvass, U.S. Senator by county",
+      "use": "2018 U.S. Senate"
+    },
+    {
+      "name": "Census ACS 5-year 2020–2024 (B01003, B01002, B03003, B19013, B25038)",
+      "use": "demographics"
+    },
+    {
+      "name": "Census ACS 5-year 2015–2019 (B01003)",
+      "use": "population change baseline"
+    },
+    {
+      "name": "Census 2024 Gazetteer, Texas counties",
+      "use": "land and water area, coordinates"
+    },
+    {
+      "name": "Census county-level 2020 urban and rural information",
+      "use": "percent urban and rural"
+    },
+    {
+      "name": "Handbook of Texas, Dallam County",
+      "use": "county seat, year formed"
+    }
+  ],
+  "details": {
+    "website": "https://dallam.org/",
+    "seat": "Dalhart",
+    "established": 1876,
+    "landSqMi": 1503.353,
+    "waterSqMi": 1.78,
+    "urbanPct": 76.7,
+    "latitude": 36.28637,
+    "longitude": -102.59402
+  }
+}

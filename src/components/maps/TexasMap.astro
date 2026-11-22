@@ -1,0 +1,132 @@
+---
+// Statewide map: every Texas county, colored by posture once it has a profile.
+import { texasMap } from "../../lib/texas";
+import { postures } from "../../config";
+import { postureColor, postureText, POSTURE_UNSET_COLOR, type County } from "../../lib/counties";
+
+interface Props {
+  profiles: { href: string; county: County }[];
+}
+const { profiles } = Astro.props;
+const W = 900;
+const H = 860;
+const map = texasMap(W, H);
+const byFips = new Map(profiles.filter((p) => p.county.fips).map((p) => [p.county.fips!, p]));
+const counts = postures.map((p) => ({
+  ...p,
+  n: profiles.filter((x) => x.county.fips && x.county.posture?.label === p.label).length,
+}));
+const unset = profiles.filter((x) => x.county.fips && !x.county.posture).length;
+const unprofiled = map.counties.length - byFips.size;
+const offMap = profiles.filter((p) => !p.county.fips);
+---
+
+<figure class="map">
+  <ul class="viz-key map-key" aria-label="Posture">
+    {
+      counts.map((p) => (
+        <li>
+          <span class="swatch" style={`background:${p.color}`} />
+          {p.label}
+          <span class="count">{p.n}</span>
+        </li>
+      ))
+    }
+    {
+      unset > 0 && (
+        <li>
+          <span class="swatch" style={`background:${POSTURE_UNSET_COLOR}`} />
+          Posture not set
+          <span class="count">{unset}</span>
+        </li>
+      )
+    }
+    <li>
+      <span class="swatch swatch-outline" />
+      Not yet profiled
+      <span class="count">{unprofiled}</span>
+    </li>
+  </ul>
+
+  <svg viewBox={`0 0 ${W} ${H}`} role="group" aria-label="Map of Texas counties by posture">
+    <g class="counties">
+      {
+        map.counties.map((c) => {
+          const p = byFips.get(c.fips);
+          const name = `${c.name} County`;
+          if (!p) {
+            return (
+              <path
+                d={c.d}
+                fill="#ecebe6"
+                data-tip={`${name}\nNot yet profiled`}
+                class="county"
+              />
+            );
+          }
+          return (
+            <a href={p.href} aria-label={`${name}: ${postureText(p.county)}`}>
+              <path
+                d={c.d}
+                fill={postureColor(p.county.posture?.label) ?? POSTURE_UNSET_COLOR}
+                data-tip={`${name}\n${postureText(p.county)}`}
+                class="county is-profiled"
+              />
+            </a>
+          );
+        })
+      }
+    </g>
+    <path d={map.borders} fill="none" stroke="#fcfcfb" stroke-width="1.1" stroke-linejoin="round" pointer-events="none" />
+    <path d={map.outline} fill="none" stroke="#1f2428" stroke-width="2" stroke-linejoin="round" pointer-events="none" />
+  </svg>
+
+  {
+    offMap.length > 0 && (
+      <figcaption class="map-note">
+        Not on the map:{" "}
+        {offMap.map((p, i) => (
+          <>
+            {i > 0 && ", "}
+            <a href={p.href}>{p.county.name}</a>
+            {p.county.sample && " (fictional sample)"}
+          </>
+        ))}
+        .
+      </figcaption>
+    )
+  }
+</figure>
+
+<style>
+  .map svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .county {
+    stroke: transparent;
+    stroke-width: 2;
+    paint-order: stroke;
+    cursor: default;
+  }
+  .county.is-profiled {
+    cursor: pointer;
+  }
+  .county:global(.is-hover),
+  a:focus-visible .county {
+    stroke: #1f2428;
+  }
+  a:focus-visible {
+    outline: none;
+  }
+  .map-key .count {
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .map-note {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--color-ink-2);
+  }
+</style>

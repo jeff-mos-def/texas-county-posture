@@ -1,0 +1,273 @@
+---
+import { render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import LocatorMap from "../../components/maps/LocatorMap.astro";
+import PostureStrip from "../../components/PostureStrip.astro";
+import DataCard from "../../components/DataCard.astro";
+import CountyDetails from "../../components/CountyDetails.astro";
+import Note from "../../components/Note.astro";
+import MarginTrend from "../../components/charts/MarginTrend.astro";
+import TurnoutChart from "../../components/charts/TurnoutChart.astro";
+import AreaShift from "../../components/charts/AreaShift.astro";
+import DownBallot from "../../components/charts/DownBallot.astro";
+import Demographics from "../../components/charts/Demographics.astro";
+import { getProfiles } from "../../lib/counties";
+import { definitions, postureCutoffs } from "../../config";
+
+export async function getStaticPaths() {
+  const all = await getProfiles();
+  return all.map((p, i) => ({
+    params: { id: p.id },
+    props: { entry: p, prev: all[i - 1], next: all[i + 1] },
+  }));
+}
+
+const { entry, prev, next } = Astro.props;
+const { profile, county: c } = entry;
+const countyId = profile.data.county.id;
+const { Content } = await render(profile);
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
+const topYear = c.topRace.year;
+---
+
+<Base title={profile.data.title} description={profile.data.dek}>
+  <article>
+    {
+      c.sample && (
+        <p class="sample-banner">
+          <span class="wrap block">Sample: {c.name} is fictional, and all figures are sample data.</span>
+        </p>
+      )
+    }
+
+    <header class="wrap profile-head">
+      <div class="head-text">
+        <h1>{profile.data.title}</h1>
+        <p class="dek">{profile.data.dek}</p>
+        <p class="meta">
+          {c.name}. Updated <time datetime={c.updated.toISOString().slice(0, 10)}>{fmtDate(c.updated)}</time>
+        </p>
+      </div>
+      <div class="head-map">
+        <LocatorMap county={c} />
+      </div>
+    </header>
+
+    <section class="wrap profile-lead" aria-label="Posture and margin history">
+      <div class="lead-posture">
+        <PostureStrip county={c} year={topYear} />
+      </div>
+      <div class="lead-trend">
+        <MarginTrend county={countyId} />
+      </div>
+    </section>
+
+    <div class="wrap">
+      <DataCard county={countyId} />
+    </div>
+
+    <div class="wrap profile-body">
+      {
+        c.details && (
+          <aside class="profile-aside">
+            <CountyDetails county={c} />
+          </aside>
+        )
+      }
+      <div class="prose-county">
+        <Content components={{ TurnoutChart, AreaShift, DownBallot, Demographics, MarginTrend, DataCard, Note }} />
+      </div>
+    </div>
+
+    <footer class="wrap method">
+      <h2>How this is measured</h2>
+      <dl>
+        {
+          definitions.map((d) => (
+            <div>
+              <dt>{d.term}</dt>
+              <dd>{d.text}</dd>
+            </div>
+          ))
+        }
+        <div>
+          <dt>Posture cutoffs</dt>
+          <dd>
+            {postureCutoffs
+              ? `Safe: ${postureCutoffs.safe} points or more. Lean: ${postureCutoffs.lean} to ${postureCutoffs.safe} points. Swing: under ${postureCutoffs.lean} points.`
+              : "TBD"}
+          </dd>
+        </div>
+        <div>
+          <dt>Sources</dt>
+          <dd>
+            <ul>
+              {c.sources.map((s) => <li>{s.name} ({s.use})</li>)}
+            </ul>
+          </dd>
+        </div>
+      </dl>
+      <p class="updated">
+        Updated {fmtDate(c.updated)}.{c.sample && ` ${c.name} is fictional, and all figures are sample data.`}
+      </p>
+    </footer>
+
+    <nav class="wrap pager" aria-label="More counties">
+      {prev ? <a href={prev.href} rel="prev"><span>Previous county</span>{prev.county.name}</a> : <span />}
+      {next ? <a href={next.href} rel="next" class="next"><span>Next county</span>{next.county.name}</a> : <span />}
+    </nav>
+  </article>
+</Base>
+
+<style>
+  .sample-banner {
+    background: #fff4d6;
+    color: #5c4700;
+    font-size: 0.875rem;
+    padding: 0.6rem 0;
+    margin: 0;
+    border-bottom: 1px solid #f0dca0;
+  }
+  .profile-head {
+    display: grid;
+    gap: 1.5rem 3rem;
+    padding-top: 3rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 48rem) {
+    .profile-head {
+      grid-template-columns: minmax(0, 1fr) 15rem;
+      align-items: end;
+    }
+  }
+  .profile-head h1 {
+    font-size: clamp(2.25rem, 1.4rem + 3.4vw, 3.75rem);
+    line-height: 1.02;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    margin: 0;
+    max-width: 18ch;
+    text-wrap: balance;
+  }
+  .dek {
+    font-family: var(--font-serif);
+    font-size: 1.3125rem;
+    line-height: 1.45;
+    color: var(--color-ink-2);
+    margin: 1rem 0 0;
+    max-width: var(--measure);
+  }
+  .meta {
+    font-size: 0.875rem;
+    color: var(--color-ink-2);
+    margin: 1rem 0 0;
+  }
+  .head-map {
+    max-width: 15rem;
+  }
+  .profile-lead {
+    display: grid;
+    gap: 1rem 3rem;
+    padding-block: 2.5rem 1rem;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+  @media (min-width: 64rem) {
+    .profile-lead {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+    .lead-posture {
+      padding-top: 1.5rem;
+    }
+  }
+  .lead-trend :global(.viz) {
+    margin-top: 0;
+  }
+  .prose-county {
+    padding-top: 0.5rem;
+  }
+  .profile-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem 3rem;
+  }
+  .profile-aside {
+    margin-top: 2.5rem;
+  }
+  @media (min-width: 64rem) {
+    .profile-body {
+      grid-template-columns: minmax(0, 1fr) 16rem;
+    }
+    .profile-aside {
+      grid-column: 2;
+      grid-row: 1;
+      align-self: start;
+      position: sticky;
+      top: 1.5rem;
+      margin-top: 4rem;
+    }
+    .profile-body > .prose-county {
+      grid-column: 1;
+      grid-row: 1;
+    }
+  }
+  .method {
+    margin-top: 4rem;
+    padding-top: 1rem;
+    border-top: 3px solid var(--color-ink);
+    font-size: 0.9375rem;
+  }
+  .method h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0 0 1rem;
+  }
+  .method dl {
+    display: grid;
+    gap: 0.9rem;
+    margin: 0;
+    max-width: var(--measure);
+  }
+  .method dt {
+    font-weight: 700;
+  }
+  .method dd {
+    margin: 0.15rem 0 0;
+    color: var(--color-ink-2);
+  }
+  .method ul {
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+  .updated {
+    margin-top: 1.25rem;
+    color: var(--color-ink-2);
+  }
+  .pager {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-rule);
+  }
+  .pager a {
+    display: grid;
+    gap: 0.15rem;
+    font-weight: 700;
+    font-size: 1.125rem;
+    text-decoration: none;
+  }
+  .pager a:hover {
+    text-decoration: underline;
+  }
+  .pager a span {
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--color-ink-2);
+  }
+  .pager .next {
+    text-align: right;
+  }
+</style>

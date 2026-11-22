@@ -1,0 +1,180 @@
+{
+  "name": "Caliche County",
+  "fips": null,
+  "sample": true,
+  "updated": "2026-11-11",
+  "posture": {
+    "label": "Lean R",
+    "trend": "toward D",
+    "previous": {
+      "label": "Safe R",
+      "year": 2022
+    }
+  },
+  "population": {
+    "total": 48210,
+    "changePct": 6.8,
+    "baseline": "2015–2019 ACS"
+  },
+  "registeredVoters": 33940,
+  "precincts": 18,
+  "turnout": [
+    {
+      "year": 2022,
+      "pct": 41.3,
+      "ballots": 13620
+    },
+    {
+      "year": 2026,
+      "pct": 52.1,
+      "ballots": 17683
+    }
+  ],
+  "votesAdded": {
+    "since": 2022,
+    "dem": 2726,
+    "rep": 1350
+  },
+  "topRace": {
+    "year": 2026,
+    "race": "U.S. Senate",
+    "rep": 55.1,
+    "dem": 43.7,
+    "other": 1.1
+  },
+  "marginHistory": [
+    {
+      "year": 2018,
+      "race": "U.S. Senate",
+      "margin": 21.2
+    },
+    {
+      "year": 2022,
+      "race": "Governor",
+      "margin": 24.9
+    },
+    {
+      "year": 2024,
+      "race": "President",
+      "margin": 27.6
+    },
+    {
+      "year": 2026,
+      "race": "U.S. Senate",
+      "margin": 11.4
+    }
+  ],
+  "shiftBaselines": [
+    2022,
+    2018
+  ],
+  "areas": {
+    "before": 2022,
+    "after": 2026,
+    "list": [
+      {
+        "slug": "caliche-springs",
+        "name": "Caliche Springs",
+        "note": "county seat",
+        "precincts": 6,
+        "ballots": 7410,
+        "ballotsChangePct": 33,
+        "marginBefore": 15.2,
+        "marginAfter": -0.6
+      },
+      {
+        "slug": "northgate",
+        "name": "Northgate corridor",
+        "note": "subdivision corridor north of the county seat",
+        "precincts": 4,
+        "ballots": 5120,
+        "ballotsChangePct": 50,
+        "marginBefore": 23.1,
+        "marginAfter": 5.9
+      },
+      {
+        "slug": "rural-east",
+        "name": "Rural east",
+        "precincts": 5,
+        "ballots": 3280,
+        "ballotsChangePct": 10,
+        "marginBefore": 36.0,
+        "marginAfter": 31.5
+      },
+      {
+        "slug": "ranch-west",
+        "name": "Ranch country, west",
+        "precincts": 3,
+        "ballots": 1873,
+        "ballotsChangePct": 14,
+        "marginBefore": 41.2,
+        "marginAfter": 38.9
+      }
+    ]
+  },
+  "downBallot": [
+    {
+      "slug": "county-judge",
+      "race": "County Judge",
+      "result": "R hold",
+      "margin": 13.0,
+      "topOfTicket": 11.4,
+      "topOfTicketArea": "countywide"
+    },
+    {
+      "slug": "district-attorney",
+      "race": "District Attorney",
+      "result": "R hold",
+      "margin": 14.0,
+      "topOfTicket": 11.4,
+      "topOfTicketArea": "countywide"
+    },
+    {
+      "slug": "sheriff",
+      "race": "Sheriff",
+      "result": "R hold",
+      "margin": 19.7,
+      "topOfTicket": 11.4,
+      "topOfTicketArea": "countywide"
+    },
+    {
+      "slug": "commissioner-pct-1",
+      "race": "Commissioner Pct. 1",
+      "result": "D flip",
+      "margin": -3.2,
+      "topOfTicket": -0.6,
+      "topOfTicketArea": "Caliche Springs precincts"
+    }
+  ],
+  "demographics": {
+    "source": "ACS 5-year 2020–2024",
+    "shares": [
+      {
+        "slug": "hispanic",
+        "name": "Hispanic or Latino",
+        "pct": 41.2
+      },
+      {
+        "slug": "moved-in",
+        "name": "Households that moved in 2021 or later",
+        "pct": 18
+      }
+    ],
+    "medianAge": 38.4,
+    "medianHouseholdIncome": 61200
+  },
+  "sources": [
+    {
+      "name": "Texas Secretary of State official canvass",
+      "use": "results, turnout"
+    },
+    {
+      "name": "Census ACS 5-year 2020–2024",
+      "use": "demographics; growth compared with the non-overlapping 2015–2019 estimates"
+    },
+    {
+      "name": "Texas Legislative Council Capitol Data Portal",
+      "use": "precinct history"
+    }
+  ]
+}

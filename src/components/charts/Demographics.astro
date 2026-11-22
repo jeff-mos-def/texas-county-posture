@@ -1,0 +1,98 @@
+---
+import { getCounty } from "../../lib/counties";
+import { renderResponsive, Plot, ink } from "../../lib/plot";
+import { formatMoney, formatPct } from "../../lib/facts.mjs";
+import NumbersTable from "../NumbersTable.astro";
+
+interface Props {
+  county: string;
+}
+const c = await getCounty(Astro.props.county);
+const d = c.demographics;
+const shares = d.shares;
+
+const svg = renderResponsive((width) => ({
+  width,
+  height: 34 + shares.length * 62,
+  marginLeft: 8,
+  marginRight: 60,
+  marginTop: 4,
+  marginBottom: 28,
+  x: { domain: [0, 100], label: null, ticks: width < 500 ? 4 : 5, tickFormat: (v: number) => `${v}%`, tickSize: 0 },
+  y: { domain: shares.map((s) => s.name), label: null, axis: null, padding: 0 },
+  marks: [
+    Plot.gridX({ stroke: ink.grid, strokeOpacity: 1, ticks: width < 500 ? 4 : 5 }),
+    Plot.barX(shares, {
+      x: "pct",
+      y: "name",
+      fill: ink.neutralBar,
+      insetTop: 32,
+      insetBottom: 6,
+      rx2y1: 4,
+      rx2y2: 4,
+    }),
+    Plot.text(shares, {
+      x: 0,
+      y: "name",
+      text: (s) => `${s.name}: ${formatPct(s.pct)}`,
+      textAnchor: "start",
+      dy: -9,
+      fill: ink.ink,
+      fontSize: 14,
+    }),
+    Plot.barX(shares, {
+      x: 100,
+      y: "name",
+      fill: "transparent",
+      title: (s) => `${formatPct(s.pct)}\n${s.name}`,
+    }),
+  ],
+}));
+---
+
+<figure class="viz" aria-labelledby={`demo-${Astro.props.county}`}>
+  <figcaption>
+    <p class="viz-title" id={`demo-${Astro.props.county}`}>Residents and households</p>
+    <p class="viz-sub">{d.source}.</p>
+  </figcaption>
+  <dl class="stat-row">
+    <div>
+      <dt>Median age</dt>
+      <dd>{d.medianAge}</dd>
+    </div>
+    <div>
+      <dt>Median household income</dt>
+      <dd>{formatMoney(d.medianHouseholdIncome)}</dd>
+    </div>
+  </dl>
+  <div role="img" aria-label={shares.map((s) => `${s.name}: ${formatPct(s.pct)}`).join(". ")} set:html={svg} />
+  <NumbersTable
+    caption="Who lives here"
+    head={["Measure", "Value"]}
+    rows={[
+      ["Median age", String(d.medianAge)],
+      ["Median household income", formatMoney(d.medianHouseholdIncome)],
+      ...shares.map((s) => [s.name, formatPct(s.pct)]),
+    ]}
+    numeric={[1]}
+  />
+</figure>
+
+<style>
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 1rem 2rem;
+    margin: 0.5rem 0 1.25rem;
+  }
+  .stat-row dt {
+    font-size: 0.875rem;
+    color: var(--color-ink-2);
+  }
+  .stat-row dd {
+    margin: 0.15rem 0 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+</style>

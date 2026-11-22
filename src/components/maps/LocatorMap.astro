@@ -1,0 +1,41 @@
+---
+// Small Texas map with one county filled in.
+import { texasMap } from "../../lib/texas";
+import { postureColor, POSTURE_UNSET_COLOR, type County } from "../../lib/counties";
+
+interface Props {
+  county: County;
+}
+const { county: c } = Astro.props;
+const W = 320;
+const H = 306;
+const map = texasMap(W, H);
+const target = c.fips ? map.counties.find((x) => x.fips === c.fips) : undefined;
+---
+
+<figure class="locator">
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={target ? `Map of Texas with ${c.name} highlighted` : `Map of Texas. ${c.name} is not on the map.`}>
+    <path d={map.outline} fill="#ecebe6" />
+    <path d={map.borders} fill="none" stroke="#fcfcfb" stroke-width="0.6" />
+    {target && <path d={target.d} fill={postureColor(c.posture?.label) ?? POSTURE_UNSET_COLOR} stroke="#1f2428" stroke-width="1.5" stroke-linejoin="round" />}
+    <path d={map.outline} fill="none" stroke="#1f2428" stroke-width="1.5" stroke-linejoin="round" />
+  </svg>
+  {!target && <figcaption>{c.sample ? "Fictional sample county, so it has no place on the map." : "No map shape: add this county's FIPS code to its data file."}</figcaption>}
+</figure>
+
+<style>
+  .locator {
+    margin: 0;
+  }
+  .locator svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .locator figcaption {
+    margin-top: 0.4rem;
+    font-size: 0.8125rem;
+    color: var(--color-ink-2);
+    max-width: 16rem;
+  }
+</style>

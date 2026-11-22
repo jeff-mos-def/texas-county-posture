@@ -1,0 +1,83 @@
+---
+import { getCounty } from "../../lib/counties";
+import { renderResponsive, Plot, ink } from "../../lib/plot";
+import { formatCount, formatPct } from "../../lib/facts.mjs";
+import NumbersTable from "../NumbersTable.astro";
+
+interface Props {
+  county: string;
+}
+const c = await getCounty(Astro.props.county);
+const rows = [...c.turnout].sort((a, b) => a.year - b.year).map((t) => ({ ...t, y: String(t.year) }));
+const max = Math.max(...rows.map((r) => r.ballots));
+const latest = rows[rows.length - 1];
+
+const svg = renderResponsive((width) => ({
+  width,
+  height: 34 + rows.length * 62,
+  marginLeft: 4,
+  marginRight: 24,
+  marginTop: 4,
+  marginBottom: 28,
+  x: {
+    domain: [0, max],
+    label: null,
+    ticks: width < 500 ? 3 : 4,
+    tickFormat: (d: number) => (max >= 10000 ? (d === 0 ? "0" : `${d / 1000}K`) : formatCount(d)),
+    tickSize: 0,
+  },
+  y: { domain: rows.map((r) => r.y), label: null, axis: null, padding: 0 },
+  marks: [
+    Plot.gridX({ stroke: ink.grid, strokeOpacity: 1, ticks: width < 500 ? 3 : 4 }),
+    Plot.barX(rows, {
+      x: "ballots",
+      y: "y",
+      fill: (d) => (d === latest ? ink.ink : ink.rule),
+      insetTop: 32,
+      insetBottom: 6,
+      rx2y1: 4,
+      rx2y2: 4,
+    }),
+    Plot.ruleX([0], { stroke: ink.rule }),
+    ...[false, true].map((isLatest) =>
+      Plot.text(
+        rows.filter((d) => (d === latest) === isLatest),
+        {
+          x: 0,
+          y: "y",
+          text: (d) => `${d.year}: ${formatCount(d.ballots)} ballots, ${formatPct(d.pct)} turnout`,
+          dy: -9,
+          textAnchor: "start",
+          fill: ink.ink,
+          fontSize: 14,
+          fontWeight: isLatest ? 700 : 400,
+        },
+      ),
+    ),
+    Plot.barX(rows, {
+      x: max,
+      y: "y",
+      fill: "transparent",
+      title: (d) => `${formatCount(d.ballots)} ballots\n${formatPct(d.pct)} of registered voters, ${d.year}`,
+    }),
+  ],
+}));
+---
+
+<figure class="viz" aria-labelledby="turnout-title">
+  <figcaption>
+    <p class="viz-title" id="turnout-title">Ballots cast, {rows[0].year} and {latest.year}</p>
+    <p class="viz-sub">Turnout is ballots cast as a share of registered voters.</p>
+  </figcaption>
+  <div
+    role="img"
+    aria-label={rows.map((r) => `${r.year}: ${formatCount(r.ballots)} ballots, ${formatPct(r.pct)} turnout`).join(". ")}
+    set:html={svg}
+  />
+  <NumbersTable
+    caption="Ballots cast and turnout"
+    head={["Year", "Ballots", "Turnout"]}
+    rows={rows.map((r) => [r.y, formatCount(r.ballots), formatPct(r.pct)])}
+    numeric={[1, 2]}
+  />
+</figure>

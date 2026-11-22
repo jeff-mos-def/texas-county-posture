@@ -1,0 +1,184 @@
+---
+import { getCounty } from "../lib/counties";
+import { derive, formatCount, formatMargin, formatPct, formatShift, formatSignedPct } from "../lib/facts.mjs";
+import { party } from "../config";
+
+interface Props {
+  county: string;
+}
+const c = await getCounty(Astro.props.county);
+const dv = derive(c);
+const turnout = [...c.turnout].sort((a, b) => a.year - b.year);
+const now = turnout[turnout.length - 1];
+const prev = turnout.length > 1 ? turnout[turnout.length - 2] : undefined;
+const top = c.topRace;
+const history = [...c.marginHistory].sort((a, b) => b.year - a.year);
+const latestYear = history[0]?.year;
+const baselines = c.shiftBaselines ?? history.slice(1).map((h) => h.year);
+const shifts = (dv.shifts as Array<{ year: number; race: string; from: number; value: number }>)
+  .filter((s) => baselines.includes(s.year))
+  .sort((a, b) => baselines.indexOf(a.year) - baselines.indexOf(b.year));
+const otherMargins = history.filter((h) => h.year !== latestYear && !baselines.includes(h.year));
+
+const parts = [
+  { name: "Republican", short: "R", pct: top.rep, color: party.rep, ink: "#ffffff" },
+  { name: "Democratic", short: "D", pct: top.dem, color: party.dem, ink: "#ffffff" },
+  ...(top.other ? [{ name: "Other", short: "Other", pct: top.other, color: "#c3c2b7", ink: "#1f2428" }] : []),
+];
+const total = parts.reduce((s, p) => s + p.pct, 0);
+---
+
+<section class="data-card" aria-labelledby="data-card-title">
+  <h2 id="data-card-title" class="sr-only">Data card</h2>
+
+  <div class="top-race">
+    <p class="label">{top.year} {top.race}</p>
+    <p class="big">{formatMargin(dv.topMargin)}</p>
+    <div class="seg" role="img" aria-label={parts.map((p) => `${p.name} ${formatPct(p.pct)}`).join(", ")}>
+      {
+        parts.map((p) => (
+          <span
+            class="part"
+            style={`flex-basis:${(p.pct / total) * 100}%;background:${p.color};color:${p.ink}`}
+            data-tip={`${formatPct(p.pct)}\n${p.name}`}
+            tabindex="0"
+          >
+            {p.pct >= 12 && `${p.short} ${formatPct(p.pct)}`}
+          </span>
+        ))
+      }
+    </div>
+    <ul class="seg-key">
+      {
+        parts.map((p) => (
+          <li>
+            <span class="swatch" style={`background:${p.color}`} />
+            {p.name}
+            {p.pct < 12 && ` ${formatPct(p.pct)}`}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <dl class="tiles">
+    <div>
+      <dt>Population</dt>
+      <dd>{formatCount(c.population.total)}</dd>
+      {c.population.changePct !== undefined && (
+        <dd class="sub">{formatSignedPct(c.population.changePct)} vs. {c.population.baseline}</dd>
+      )}
+    </div>
+    <div>
+      <dt>Registered voters</dt>
+      <dd>{formatCount(c.registeredVoters)}</dd>
+    </div>
+    <div>
+      <dt>{now.year} turnout</dt>
+      <dd>{formatPct(now.pct)}</dd>
+      <dd class="sub">
+        {formatCount(now.ballots)} ballots{prev && `. ${formatPct(prev.pct)} in ${prev.year}`}
+      </dd>
+    </div>
+    {
+      shifts.map((s) => (
+        <div>
+          <dt>Shift vs. {s.year} {s.race}</dt>
+          <dd>{formatShift(s.value)}</dd>
+          <dd class="sub">from {formatMargin(s.from)}</dd>
+        </div>
+      ))
+    }
+    {
+      otherMargins.map((h) => (
+        <div>
+          <dt>{h.year} {h.race}</dt>
+          <dd>{formatMargin(h.margin)}</dd>
+        </div>
+      ))
+    }
+    <div>
+      <dt>Precincts</dt>
+      <dd>{c.precincts}</dd>
+    </div>
+  </dl>
+</section>
+
+<style>
+  .data-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.75rem;
+    padding-block: 1.5rem;
+    border-block: 1px solid var(--color-rule);
+  }
+  @media (min-width: 64rem) {
+    .data-card {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: 3rem;
+    }
+  }
+  .label,
+  dt {
+    font-size: 0.875rem;
+    color: var(--color-ink-2);
+    margin: 0;
+  }
+  .big {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin: 0.3rem 0 1rem;
+  }
+  .seg {
+    display: flex;
+    gap: 2px;
+    height: 28px;
+  }
+  .part {
+    display: flex;
+    align-items: center;
+    padding-inline: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: visible;
+    min-width: 4px;
+  }
+  .seg-key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1.1rem;
+    list-style: none;
+    padding: 0;
+    margin: 0.6rem 0 0;
+    font-size: 0.875rem;
+    color: var(--color-ink-2);
+  }
+  .seg-key li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+    gap: 1.25rem 2rem;
+    margin: 0;
+    align-content: start;
+  }
+  .tiles dd {
+    margin: 0.15rem 0 0;
+    font-size: 1.625rem;
+    font-weight: 700;
+    line-height: 1.15;
+  }
+  .tiles dd.sub {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--color-ink-2);
+    margin-top: 0.2rem;
+  }
+</style>

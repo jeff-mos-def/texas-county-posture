@@ -1,0 +1,230 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getProfiles, postureColor, postureText, POSTURE_UNSET_COLOR } from "../../lib/counties";
+import { texasCounties } from "../../lib/texas";
+import { postures } from "../../config";
+
+const profiles = await getProfiles();
+const byFips = new Map(profiles.filter((p) => p.county.fips).map((p) => [p.county.fips!, p]));
+const rows = [
+  ...texasCounties.map((c) => {
+    const p = byFips.get(c.fips);
+    return {
+      name: `${c.name} County`,
+      href: p?.href,
+      posture: p ? (p.county.posture?.label ?? "unset") : "none",
+      status: p ? postureText(p.county) : "Not yet profiled",
+      sample: false,
+    };
+  }),
+  ...profiles
+    .filter((p) => !p.county.fips)
+    .map((p) => ({
+      name: p.county.name,
+      href: p.href,
+      posture: p.county.posture?.label ?? "unset",
+      status: postureText(p.county),
+      sample: p.county.sample,
+    })),
+].sort((a, b) => a.name.localeCompare(b.name));
+const filters = [
+  ...postures.map((p) => ({ value: p.label, label: p.label, color: p.color as string | null })),
+  { value: "none", label: "Not yet profiled", color: null },
+];
+const countFor = (v: string) => rows.filter((r) => r.posture === v).length;
+---
+
+<Base title="Counties" description="Every Texas county and its posture.">
+  <div class="wrap">
+    <header class="index-head">
+      <h1>Counties</h1>
+      <p>Every Texas county, with its posture once it has a profile.</p>
+    </header>
+
+    <div class="index-tools" hidden>
+      <label class="sr-only" for="index-q">Filter by name</label>
+      <input id="index-q" type="search" placeholder="Filter by name" autocomplete="off" />
+      <div class="filters" role="group" aria-label="Filter by posture">
+        <button type="button" data-filter="" aria-pressed="true">All <span>{rows.length}</span></button>
+        {
+          filters.map((f) => (
+            <button type="button" data-filter={f.value} aria-pressed="false">
+              {f.color ? <span class="swatch" style={`background:${f.color}`} /> : <span class="swatch swatch-outline" />}
+              {f.label} <span>{countFor(f.value)}</span>
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    <table class="county-table">
+      <thead>
+        <tr>
+          <th scope="col">County</th>
+          <th scope="col">Posture</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((r) => (
+            <tr data-posture={r.posture} data-name={r.name.toLowerCase()}>
+              <th scope="row">
+                {r.href ? <a href={r.href}>{r.name}</a> : r.name}
+                {r.sample && <span class="sample-tag">fictional sample</span>}
+              </th>
+              <td>
+                <span class="posture-cell">
+                  {r.posture !== "none" ? (
+                    <span class="swatch" style={`background:${postureColor(r.posture) ?? POSTURE_UNSET_COLOR}`} />
+                  ) : (
+                    <span class="swatch swatch-outline" />
+                  )}
+                  {r.status}
+                </span>
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p class="empty" hidden>No counties match. Clear the name filter or pick another posture.</p>
+  </div>
+</Base>
+
+<style>
+  .index-head {
+    padding-top: 3rem;
+  }
+  .index-head h1 {
+    font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.25rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    margin: 0;
+  }
+  .index-head p {
+    font-family: var(--font-serif);
+    font-size: 1.1875rem;
+    color: var(--color-ink-2);
+    margin: 0.5rem 0 0;
+  }
+  .index-tools {
+    display: grid;
+    gap: 0.9rem;
+    margin: 2rem 0 1.25rem;
+  }
+  .index-tools[hidden] {
+    display: none;
+  }
+  .index-tools input {
+    font: inherit;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 6px;
+    background: var(--color-surface);
+    max-width: 22rem;
+  }
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .filters button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font: inherit;
+    font-size: 0.9375rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-rule);
+    background: var(--color-surface);
+    color: var(--color-ink-2);
+    cursor: pointer;
+  }
+  .filters button span:last-child {
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .filters button:hover {
+    border-color: var(--color-ink);
+    color: var(--color-ink);
+  }
+  .filters button[aria-pressed="true"] {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-surface);
+  }
+  .filters button[aria-pressed="true"] span:last-child {
+    color: var(--color-grid);
+  }
+  .county-table {
+    width: 100%;
+    max-width: 44rem;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+  }
+  .county-table th,
+  .county-table td {
+    text-align: left;
+    padding: 0.6rem 1rem 0.6rem 0;
+    border-bottom: 1px solid var(--color-grid);
+    font-weight: 400;
+  }
+  .county-table thead th {
+    font-size: 0.875rem;
+    color: var(--color-ink-2);
+    font-weight: 600;
+  }
+  .county-table tbody th a {
+    font-weight: 700;
+  }
+  .posture-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--color-ink-2);
+  }
+  .sample-tag {
+    margin-left: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+  .empty {
+    color: var(--color-ink-2);
+  }
+</style>
+
+<script>
+  const tools = document.querySelector<HTMLElement>(".index-tools");
+  if (tools) {
+    tools.hidden = false;
+    const input = tools.querySelector<HTMLInputElement>("input")!;
+    const buttons = tools.querySelectorAll<HTMLButtonElement>("[data-filter]");
+    const rows = document.querySelectorAll<HTMLTableRowElement>(".county-table tbody tr");
+    const empty = document.querySelector<HTMLElement>(".empty")!;
+    let posture = "";
+    const q0 = new URLSearchParams(location.search).get("q");
+    if (q0) input.value = q0;
+
+    const apply = () => {
+      const q = input.value.trim().toLowerCase();
+      let shown = 0;
+      rows.forEach((r) => {
+        const ok = (!posture || r.dataset.posture === posture) && (!q || (r.dataset.name ?? "").includes(q));
+        r.hidden = !ok;
+        if (ok) shown++;
+      });
+      empty.hidden = shown > 0;
+    };
+
+    buttons.forEach((b) =>
+      b.addEventListener("click", () => {
+        posture = b.dataset.filter ?? "";
+        buttons.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        apply();
+      }),
+    );
+    input.addEventListener("input", apply);
+    apply();
+  }
+</script>

@@ -1,0 +1,35 @@
+---
+// The table view every chart carries, so no value depends on hovering.
+interface Props {
+  caption: string;
+  head: string[];
+  rows: (string | number)[][];
+  numeric?: number[]; // column indexes to right-align
+}
+const { caption, head, rows, numeric = [] } = Astro.props;
+---
+
+<details class="numbers">
+  <summary>Show the numbers</summary>
+  <table>
+    <caption class="sr-only">{caption}</caption>
+    <thead>
+      <tr>{head.map((h, i) => <th scope="col" class:list={{ n: numeric.includes(i) }}>{h}</th>)}</tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((r) => (
+          <tr>
+            {r.map((cell, i) =>
+              i === 0 ? (
+                <th scope="row">{cell}</th>
+              ) : (
+                <td class:list={{ n: numeric.includes(i) }}>{cell}</td>
+              ),
+            )}
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</details>

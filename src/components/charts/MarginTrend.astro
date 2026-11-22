@@ -1,0 +1,89 @@
+---
+import { getCounty } from "../../lib/counties";
+import { renderResponsive, Plot, marginTick, marginDomain, ink } from "../../lib/plot";
+import { formatMargin } from "../../lib/facts.mjs";
+import { party } from "../../config";
+import NumbersTable from "../NumbersTable.astro";
+
+interface Props {
+  county: string;
+}
+const c = await getCounty(Astro.props.county);
+const rows = [...c.marginHistory]
+  .sort((a, b) => a.year - b.year)
+  .map((h) => ({ ...h, label: `${h.year}\n${h.race}` }));
+const order = rows.map((r) => r.label);
+const [lo, hi] = marginDomain(rows.map((r) => r.margin));
+const last = rows[rows.length - 1];
+const peak = rows.reduce((a, b) => (Math.abs(b.margin) > Math.abs(a.margin) ? b : a));
+const labeled = peak === last ? [last] : [peak, last];
+const side = (m: number) => (m > 0 ? party.rep : m < 0 ? party.dem : party.other);
+
+const svg = renderResponsive((width) => ({
+  width,
+  height: width < 500 ? 240 : 280,
+  marginLeft: 44,
+  marginRight: 60,
+  marginBottom: 44,
+  style: { background: "transparent", fontSize: width < 500 ? "12px" : "13px", overflow: "visible" },
+  x: { type: "point", domain: order, label: null, padding: width < 500 ? 0.2 : 0.35, tickSize: 0 },
+  y: { domain: [lo, hi], label: null, tickFormat: marginTick, ticks: 5, tickSize: 0 },
+  marks: [
+    Plot.rectY([{}], { y1: 0, y2: hi, fill: party.rep, fillOpacity: 0.06 }),
+    Plot.rectY([{}], { y1: lo, y2: 0, fill: party.dem, fillOpacity: 0.06 }),
+    Plot.gridY({ stroke: ink.grid, strokeOpacity: 1, ticks: 5 }),
+    Plot.ruleY([0], { stroke: ink.rule, strokeWidth: 1 }),
+    Plot.lineY(rows, {
+      x: "label",
+      y: "margin",
+      stroke: ink.ink,
+      strokeWidth: 2,
+      strokeLinejoin: "round",
+      strokeLinecap: "round",
+    }),
+    Plot.dot(rows, {
+      x: "label",
+      y: "margin",
+      r: 5,
+      fill: (d) => side(d.margin),
+      stroke: ink.surface,
+      strokeWidth: 2,
+    }),
+    Plot.text(labeled, {
+      x: "label",
+      y: "margin",
+      text: (d) => formatMargin(d.margin),
+      dx: 12,
+      textAnchor: "start",
+      fill: ink.ink,
+      fontWeight: 700,
+      fontSize: 14,
+    }),
+    Plot.dot(rows, {
+      x: "label",
+      y: "margin",
+      r: 16,
+      fill: "transparent",
+      title: (d) => `${formatMargin(d.margin)}\n${d.year} ${d.race}`,
+    }),
+  ],
+}), undefined, 672);
+---
+
+<figure class="viz" aria-labelledby="margin-trend-title">
+  <figcaption>
+    <p class="viz-title" id="margin-trend-title">Margin in the top race, by election</p>
+    <p class="viz-sub">Republican share minus Democratic share, in points. The shaded half above Even is Republican.</p>
+  </figcaption>
+  <div
+    role="img"
+    aria-label={`Margin by election: ${rows.map((r) => `${r.year} ${r.race} ${formatMargin(r.margin)}`).join(", ")}`}
+    set:html={svg}
+  />
+  <NumbersTable
+    caption="Margin in the top race, by election"
+    head={["Election", "Race", "Margin"]}
+    rows={rows.map((r) => [String(r.year), r.race, formatMargin(r.margin)])}
+    numeric={[2]}
+  />
+</figure>

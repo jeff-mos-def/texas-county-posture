@@ -1,0 +1,35 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../config";
+// Replace this page's text with the publication's own About copy.
+---
+
+<Base title="About" description={site.description}>
+  <div class="wrap page">
+    <h1>About</h1>
+    <p>
+      {site.name} profiles the voting posture of Texas counties, one county at a time. Each profile pairs a county's
+      election results with the places and people behind them, and every number on the page comes from the county's
+      data file.
+    </p>
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-top: 3rem;
+    max-width: var(--measure);
+    margin-inline: auto;
+  }
+  .page h1 {
+    font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.25rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    margin: 0 0 1rem;
+  }
+  .page p {
+    font-family: var(--font-serif);
+    font-size: 1.1875rem;
+    line-height: 1.6;
+  }
+</style>

@@ -1,0 +1,270 @@
+@import "tailwindcss";
+@import "@fontsource-variable/overpass";
+@import "@fontsource-variable/overpass/wght-italic.css";
+@import "@fontsource-variable/source-serif-4";
+@import "@fontsource-variable/source-serif-4/wght-italic.css";
+
+/*
+  Design tokens.
+  Color is reserved for votes: red and blue appear only on data marks and
+  the posture scale. Everything else is ink on a light surface.
+*/
+@theme {
+  --font-sans: "Overpass Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Source Serif 4 Variable", Georgia, "Times New Roman", serif;
+
+  --color-page: #fbfbf9;
+  --color-surface: #fcfcfb;
+  --color-ink: #1f2428;
+  --color-ink-2: #52514e;
+  --color-muted: #6d6b66;
+  --color-grid: #e1e0d9;
+  --color-rule: #c3c2b7;
+  --color-wash: #f0efec;
+  --color-unprofiled: #ecebe6;
+
+  --color-dem: #2a78d6;
+  --color-rep: #e34948;
+
+  --color-safe-d: #1c5cab;
+  --color-lean-d: #86b6ef;
+  --color-swing: #dcdad2;
+  --color-lean-r: #ef9694;
+  --color-safe-r: #c0302f;
+
+  /* Breakpoints: Tailwind's built-in values until real ones are set. UNSET. */
+}
+
+:root {
+  /* UNSET: content width. Placeholder until a real value is chosen. */
+  --measure: 68ch;
+  --wide: 75rem;
+  color-scheme: light;
+}
+
+@layer base {
+  html {
+    background: var(--color-page);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    min-height: 100vh;
+  }
+  a {
+    color: inherit;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+  a:hover {
+    text-decoration-thickness: 2px;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .wrap {
+    width: min(100% - 2.5rem, var(--wide));
+    margin-inline: auto;
+  }
+  .measure {
+    max-width: var(--measure);
+  }
+
+  /* Long-form text in a profile */
+  .prose-county {
+    font-family: var(--font-serif);
+    font-size: 1.1875rem;
+    line-height: 1.65;
+    font-variation-settings: "opsz" 20;
+  }
+  .prose-county > * {
+    max-width: var(--measure);
+  }
+  .prose-county p {
+    margin-block: 0 1.1em;
+  }
+  .prose-county h2 {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-size: 1.75rem;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-block: 3.5rem 1.25rem;
+    padding-top: 1rem;
+    border-top: 3px solid var(--color-ink);
+  }
+  .prose-county ul {
+    list-style: none;
+    padding: 0;
+    margin-block: 0 1.25em;
+  }
+  .prose-county li {
+    padding-left: 1.1em;
+    position: relative;
+    margin-block: 0 0.7em;
+  }
+  .prose-county li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.68em;
+    width: 0.45em;
+    height: 2px;
+    background: var(--color-ink);
+  }
+  .prose-county strong {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 0.95em;
+  }
+  .prose-county .viz {
+    max-width: 52rem;
+    font-family: var(--font-sans);
+  }
+
+  /* Chart frame */
+  .viz {
+    margin-block: 1.5rem 2rem;
+  }
+  .viz-title {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 1.0625rem;
+    line-height: 1.3;
+    margin: 0;
+  }
+  .viz-sub {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: var(--color-ink-2);
+    margin: 0.2rem 0 0.75rem;
+  }
+  .viz .v-wide svg,
+  .viz .v-narrow svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .v-wide {
+    display: none;
+  }
+  @media (min-width: 48rem) {
+    .v-wide {
+      display: block;
+    }
+    .v-narrow {
+      display: none;
+    }
+  }
+  .viz-key svg {
+    display: block;
+    flex: none;
+  }
+  .viz svg text {
+    font-family: var(--font-sans);
+  }
+  .viz-key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+    font-size: 0.875rem;
+    color: var(--color-ink-2);
+    margin: 0 0 0.5rem;
+    padding: 0;
+    list-style: none;
+  }
+  .viz-key li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0;
+    margin: 0;
+  }
+  .viz-key li::before {
+    display: none;
+  }
+
+  /* Table view under every chart */
+  .numbers {
+    margin-top: 0.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+  }
+  .numbers summary {
+    cursor: pointer;
+    color: var(--color-ink-2);
+    width: fit-content;
+  }
+  .numbers summary:hover {
+    color: var(--color-ink);
+  }
+  .numbers table {
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+    font-variant-numeric: tabular-nums;
+    width: 100%;
+    max-width: 40rem;
+  }
+  .numbers th,
+  .numbers td {
+    text-align: left;
+    padding: 0.35rem 1rem 0.35rem 0;
+    border-bottom: 1px solid var(--color-grid);
+  }
+  .numbers th {
+    font-weight: 600;
+    color: var(--color-ink-2);
+  }
+  .numbers td.n,
+  .numbers th.n {
+    text-align: right;
+  }
+
+  /* Shared tooltip */
+  .tip {
+    position: fixed;
+    z-index: 50;
+    pointer-events: none;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    border: 1px solid var(--color-rule);
+    border-radius: 6px;
+    padding: 0.45rem 0.6rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    line-height: 1.35;
+    box-shadow: 0 6px 18px rgb(31 36 40 / 0.12);
+    max-width: 18rem;
+    white-space: pre-line;
+  }
+  .tip[hidden] {
+    display: none;
+  }
+
+  .swatch {
+    display: inline-block;
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 2px;
+    flex: none;
+  }
+  .swatch-outline {
+    background: var(--color-unprofiled);
+  }
+}

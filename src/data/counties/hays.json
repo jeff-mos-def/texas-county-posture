@@ -1,0 +1,159 @@
+{
+  "name": "Hays County",
+  "fips": "48209",
+  "sample": false,
+  "updated": "2026-11-22",
+  "posture": {
+    "label": "Safe D",
+    "trend": "toward D",
+    "previous": {
+      "label": "Lean D",
+      "year": 2022
+    }
+  },
+  "population": {
+    "total": 268638,
+    "changePct": 25.9,
+    "baseline": "2015–2019 ACS"
+  },
+  "registeredVoters": 204327,
+  "precincts": 90,
+  "turnout": [
+    {
+      "year": 2022,
+      "pct": 52.8,
+      "ballots": 89953
+    },
+    {
+      "year": 2026,
+      "pct": 59.16,
+      "ballots": 120880
+    }
+  ],
+  "votesAdded": {
+    "since": 2022,
+    "dem": 29124,
+    "rep": 562
+  },
+  "topRace": {
+    "year": 2026,
+    "race": "U.S. Senate",
+    "rep": 32.99,
+    "dem": 64.98,
+    "other": 2.03
+  },
+  "marginHistory": [
+    {
+      "year": 2018,
+      "race": "U.S. Senate",
+      "margin": -15.394
+    },
+    {
+      "year": 2022,
+      "race": "Governor",
+      "margin": -11.022
+    },
+    {
+      "year": 2024,
+      "race": "President",
+      "margin": -5.635
+    },
+    {
+      "year": 2026,
+      "race": "U.S. Senate",
+      "margin": -31.99
+    }
+  ],
+  "shiftBaselines": [
+    2022,
+    2018
+  ],
+  "areas": {
+    "before": 2022,
+    "after": 2026,
+    "list": []
+  },
+  "downBallot": [
+    {
+      "slug": "county-judge",
+      "race": "County Judge",
+      "result": "D hold",
+      "margin": -23.656,
+      "topOfTicket": -31.99,
+      "topOfTicketArea": "countywide"
+    },
+    {
+      "slug": "county-court-at-law-2",
+      "race": "County Court-at-Law No. 2",
+      "result": "D hold",
+      "margin": -24.486,
+      "topOfTicket": -31.99,
+      "topOfTicketArea": "countywide"
+    }
+  ],
+  "demographics": {
+    "source": "ACS 5-year 2020–2024",
+    "shares": [
+      {
+        "slug": "hispanic",
+        "name": "Hispanic or Latino",
+        "pct": 39.44
+      },
+      {
+        "slug": "moved-in",
+        "name": "Households that moved in 2020 or later",
+        "pct": 37.29
+      }
+    ],
+    "medianAge": 34.1,
+    "medianHouseholdIncome": 89097
+  },
+  "sources": [
+    {
+      "name": "Hays County Elections, official cumulative results, Nov. 3, 2026",
+      "use": "2026 results, turnout, registered voters, precinct count"
+    },
+    {
+      "name": "Hays County Elections, official cumulative results, Nov. 5, 2024",
+      "use": "2024 President"
+    },
+    {
+      "name": "Hays County Elections, official cumulative results, Nov. 8, 2022",
+      "use": "2022 Governor, 2022 turnout"
+    },
+    {
+      "name": "Texas Secretary of State, 2018 General Election canvass, Hays County",
+      "use": "2018 U.S. Senate"
+    },
+    {
+      "name": "Census ACS 5-year 2020–2024 (B01003, B01002, B03003, B19013, B25038)",
+      "use": "demographics"
+    },
+    {
+      "name": "Census ACS 5-year 2015–2019 (B01003)",
+      "use": "population growth baseline"
+    },
+    {
+      "name": "Census 2024 Gazetteer, Texas counties",
+      "use": "land and water area, coordinates"
+    },
+    {
+      "name": "Census county-level 2020 urban and rural information",
+      "use": "percent urban and rural"
+    },
+    {
+      "name": "Handbook of Texas, Hays County",
+      "use": "county seat, year established"
+    }
+  ],
+  "details": {
+    "website": "https://www.hayscountytx.gov/",
+    "seat": "San Marcos",
+    "established": 1848,
+    "landSqMi": 676.852,
+    "waterSqMi": 1.947,
+    "urbanPct": 70.26,
+    "latitude": 30.061225,
+    "longitude": -98.029267
+  }
+}

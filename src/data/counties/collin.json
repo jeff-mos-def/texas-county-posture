@@ -1,0 +1,163 @@
+{
+  "name": "Collin County",
+  "fips": "48085",
+  "sample": false,
+  "updated": "2026-11-22",
+  "posture": {
+    "label": "Lean D",
+    "trend": "toward D",
+    "previous": {
+      "label": "Lean R",
+      "year": 2022
+    }
+  },
+  "population": {
+    "total": 1163337,
+    "changePct": 19.44,
+    "baseline": "2015–2019 ACS"
+  },
+  "registeredVoters": 795862,
+  "precincts": 273,
+  "turnout": [
+    {
+      "year": 2022,
+      "pct": 52.56,
+      "ballots": 366168
+    },
+    {
+      "year": 2026,
+      "pct": 58.33,
+      "ballots": 464206
+    }
+  ],
+  "votesAdded": {
+    "since": 2022,
+    "dem": 92863,
+    "rep": -110
+  },
+  "topRace": {
+    "year": 2026,
+    "race": "U.S. Senate",
+    "rep": 42.92,
+    "dem": 55.16,
+    "other": 1.92
+  },
+  "marginHistory": [
+    {
+      "year": 2018,
+      "race": "U.S. Senate",
+      "margin": 6.127
+    },
+    {
+      "year": 2022,
+      "race": "Governor",
+      "margin": 10.0
+    },
+    {
+      "year": 2024,
+      "race": "President",
+      "margin": 11.091
+    },
+    {
+      "year": 2026,
+      "race": "U.S. Senate",
+      "margin": -12.24
+    }
+  ],
+  "shiftBaselines": [
+    2022,
+    2018
+  ],
+  "areas": {
+    "before": 2022,
+    "after": 2026,
+    "list": []
+  },
+  "downBallot": [
+    {
+      "slug": "county-judge",
+      "race": "County Judge",
+      "result": "R hold",
+      "margin": 0.308,
+      "topOfTicket": -12.24,
+      "topOfTicketArea": "countywide"
+    },
+    {
+      "slug": "county-clerk",
+      "race": "County Clerk",
+      "result": "R hold",
+      "margin": 2.319,
+      "topOfTicket": -12.24,
+      "topOfTicketArea": "countywide"
+    }
+  ],
+  "demographics": {
+    "source": "ACS 5-year 2020–2024",
+    "shares": [
+      {
+        "slug": "hispanic",
+        "name": "Hispanic or Latino",
+        "pct": 16.09
+      },
+      {
+        "slug": "moved-in",
+        "name": "Households that moved in 2020 or later",
+        "pct": 33.49
+      }
+    ],
+    "medianAge": 37.3,
+    "medianHouseholdIncome": 121600
+  },
+  "sources": [
+    {
+      "name": "Collin County Elections, summary results report, final official, Nov. 3, 2026",
+      "use": "2026 results, turnout, registered voters"
+    },
+    {
+      "name": "Collin County Elections, all races precinct export, Nov. 3, 2026",
+      "use": "precinct count"
+    },
+    {
+      "name": "Collin County Elections, combined accumulated totals, official results, Nov. 5, 2024",
+      "use": "2024 President, 2024 county races"
+    },
+    {
+      "name": "Collin County Elections, combined accumulated totals, final, Nov. 8, 2022",
+      "use": "2022 Governor, 2022 turnout, 2022 county races"
+    },
+    {
+      "name": "Texas Secretary of State, 2018 General Election canvass, U.S. Senator by county",
+      "use": "2018 U.S. Senate"
+    },
+    {
+      "name": "Census ACS 5-year 2020–2024 (B01003, B01002, B03003, B19013, B25038)",
+      "use": "demographics"
+    },
+    {
+      "name": "Census ACS 5-year 2015–2019 (B01003)",
+      "use": "population growth baseline"
+    },
+    {
+      "name": "Census 2024 Gazetteer, Texas counties",
+      "use": "land and water area, coordinates"
+    },
+    {
+      "name": "Census county-level 2020 urban and rural information",
+      "use": "percent urban and rural"
+    },
+    {
+      "name": "Handbook of Texas, Collin County",
+      "use": "county seat, year established"
+    }
+  ],
+  "details": {
+    "website": "https://www.collincountytx.gov/",
+    "seat": "McKinney",
+    "established": 1846,
+    "landSqMi": 841.365,
+    "waterSqMi": 44.5,
+    "urbanPct": 93.85,
+    "latitude": 33.194494,
+    "longitude": -96.579428
+  }
+}

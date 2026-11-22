@@ -1,0 +1,84 @@
+---
+// Reference facts about a county: seat, founding, size, and location.
+import type { County } from "../lib/counties";
+import { formatCount } from "../lib/facts.mjs";
+
+interface Props {
+  county: County;
+}
+const { county: c } = Astro.props;
+const d = c.details!;
+const sqmi = (v: number) =>
+  `${v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} sq mi`;
+const pct = (v: number) => `${v.toFixed(2)}%`;
+const coord = (v: number, pos: string, neg: string) => `${Math.abs(v).toFixed(4)}° ${v >= 0 ? pos : neg}`;
+const host = new URL(d.website).hostname.replace(/^www\./, "");
+
+const rows: [string, string][] = [
+  ["County seat", d.seat],
+  ["Established", String(d.established)],
+  ["Population", formatCount(c.population.total)],
+  ["Median age", String(c.demographics.medianAge)],
+  ["Land area", sqmi(d.landSqMi)],
+  ["Water area", sqmi(d.waterSqMi)],
+  ["Total area", sqmi(d.landSqMi + d.waterSqMi)],
+  ["Percent urban", pct(d.urbanPct)],
+  ["Percent rural", pct(100 - d.urbanPct)],
+  ["Latitude, longitude", `${coord(d.latitude, "N", "S")}, ${coord(d.longitude, "E", "W")}`],
+];
+---
+
+<section class="details" aria-labelledby="county-details-title">
+  <h2 id="county-details-title">County details</h2>
+  <dl>
+    <div>
+      <dt>County website</dt>
+      <dd>
+        <a href={d.website} target="_blank" rel="noopener noreferrer">
+          {host}<span class="sr-only"> (opens in a new window)</span>
+        </a>
+      </dd>
+    </div>
+    {
+      rows.map(([label, value]) => (
+        <div>
+          <dt>{label}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</section>
+
+<style>
+  .details {
+    font-family: var(--font-sans);
+    border-top: 3px solid var(--color-ink);
+    padding-top: 0.75rem;
+  }
+  .details h2 {
+    font-size: 1.125rem;
+    font-weight: 800;
+    margin: 0 0 0.25rem;
+  }
+  .details dl {
+    margin: 0;
+  }
+  .details dl > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--color-grid);
+    font-size: 0.9375rem;
+  }
+  .details dt {
+    color: var(--color-ink-2);
+  }
+  .details dd {
+    margin: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+</style>

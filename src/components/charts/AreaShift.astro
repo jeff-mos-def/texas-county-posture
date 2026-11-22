@@ -1,0 +1,267 @@
+---
+import { getCounty } from "../../lib/counties";
+import { renderResponsive, Plot, marginTick, marginDomain, ink, tagMark } from "../../lib/plot";
+import { derive, formatCount, formatMargin, formatShift, formatSignedPct } from "../../lib/facts.mjs";
+import { party } from "../../config";
+import NumbersTable from "../NumbersTable.astro";
+
+interface Props {
+  county: string;
+}
+const c = await getCounty(Astro.props.county);
+const { before, after } = c.areas;
+const rows = derive(c).areas as Array<(typeof c.areas.list)[number] & { shift: number }>;
+const [lo, hi] = marginDomain(rows.flatMap((r) => [r.marginBefore, r.marginAfter]));
+const side = (m: number) => (m > 0 ? party.rep : m < 0 ? party.dem : party.other);
+const slugs = rows.map((r) => r.slug);
+const uid = `area-${Astro.props.county}`;
+
+const svg = renderResponsive(
+  (width) => ({
+    width,
+    height: 36 + rows.length * 66,
+    marginLeft: 22,
+    marginRight: 64,
+    marginTop: 4,
+    marginBottom: 28,
+    x: { domain: [lo, hi], label: null, tickFormat: marginTick, ticks: width < 500 ? 3 : 6, tickSize: 0 },
+    y: { type: "band", domain: rows.map((r) => r.name), label: null, axis: null, padding: 0 },
+    marks: [
+      Plot.gridX({ stroke: ink.grid, strokeOpacity: 1, ticks: width < 500 ? 3 : 6 }),
+      Plot.ruleX([0], { stroke: ink.rule }),
+      Plot.text(rows, {
+        x: lo,
+        y: "name",
+        text: (d) => d.name,
+        dy: -20,
+        textAnchor: "start",
+        fill: ink.ink,
+        fontSize: 14,
+        fontWeight: 600,
+        className: "m-name",
+      }),
+      Plot.link(rows, {
+        x1: "marginBefore",
+        x2: "marginAfter",
+        y1: "name",
+        y2: "name",
+        dy: 6,
+        stroke: ink.rule,
+        strokeWidth: 2,
+        strokeLinecap: "round",
+        className: "m-link",
+      }),
+      Plot.dot(rows, {
+        x: "marginBefore",
+        y: "name",
+        dy: 6,
+        r: 5,
+        fill: ink.surface,
+        stroke: ink.ink2,
+        strokeWidth: 2,
+        className: "m-before",
+      }),
+      Plot.dot(rows, {
+        x: "marginAfter",
+        y: "name",
+        dy: 6,
+        r: 6,
+        fill: (d) => side(d.marginAfter),
+        stroke: ink.surface,
+        strokeWidth: 2,
+        className: "m-after",
+      }),
+      Plot.text(rows, {
+        x: hi,
+        y: "name",
+        dy: 6,
+        text: (d) => formatShift(d.shift),
+        dx: 12,
+        textAnchor: "start",
+        fill: ink.ink,
+        fontWeight: 700,
+        fontSize: 14,
+        className: "m-shift",
+      }),
+      Plot.ruleY(rows, {
+        y: "name",
+        x1: lo,
+        x2: hi,
+        stroke: "transparent",
+        strokeWidth: 60,
+        title: (d) =>
+          `${d.name}\n${before}: ${formatMargin(d.marginBefore)}\n${after}: ${formatMargin(d.marginAfter)}\nShift: ${formatShift(d.shift)}`,
+        className: "m-hit",
+      }),
+    ],
+  }),
+  (node) => {
+    for (const label of ["name", "link", "before", "after", "shift", "hit"]) tagMark(node, label, "data-area", slugs);
+  },
+);
+---
+
+<figure class="viz area-shift" id={uid} aria-labelledby={`${uid}-title`}>
+  <figcaption>
+    <p class="viz-title" id={`${uid}-title`}>Where the margin moved, {before} to {after}</p>
+    <p class="viz-sub">Each row is one part of the county. The shift is the change in margin.</p>
+  </figcaption>
+  <ul class="viz-key" aria-hidden="true">
+    <li>
+      <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill={ink.surface} stroke={ink.ink2} stroke-width="2"></circle></svg>
+      {before}
+    </li>
+    <li>
+      <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill={party.rep}></circle></svg>
+      {after}, Republican side
+    </li>
+    <li>
+      <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill={party.dem}></circle></svg>
+      {after}, Democratic side
+    </li>
+  </ul>
+
+  <div class="area-picker" role="group" aria-label="Show one part of the county" hidden>
+    <button type="button" data-pick="" aria-pressed="true">All areas</button>
+    {rows.map((r) => <button type="button" data-pick={r.slug} aria-pressed="false">{r.name}</button>)}
+  </div>
+
+  <div
+    role="img"
+    aria-label={rows
+      .map((r) => `${r.name}: ${formatMargin(r.marginBefore)} in ${before}, ${formatMargin(r.marginAfter)} in ${after}, shift ${formatShift(r.shift)}`)
+      .join(". ")}
+    set:html={svg}
+  />
+
+  <div class="area-detail" aria-live="polite">
+    {
+      rows.map((r) => (
+        <dl data-detail={r.slug} hidden>
+          <div>
+            <dt>Precincts</dt>
+            <dd>{r.precincts}</dd>
+          </div>
+          <div>
+            <dt>Ballots, {after}</dt>
+            <dd>{formatCount(r.ballots)}</dd>
+          </div>
+          <div>
+            <dt>Change in ballots</dt>
+            <dd>{formatSignedPct(r.ballotsChangePct)}</dd>
+          </div>
+          <div>
+            <dt>Margin, {before}</dt>
+            <dd>{formatMargin(r.marginBefore)}</dd>
+          </div>
+          <div>
+            <dt>Margin, {after}</dt>
+            <dd>{formatMargin(r.marginAfter)}</dd>
+          </div>
+          <div>
+            <dt>Shift</dt>
+            <dd>{formatShift(r.shift)}</dd>
+          </div>
+        </dl>
+      ))
+    }
+  </div>
+
+  <NumbersTable
+    caption={`Margin by part of the county, ${before} and ${after}`}
+    head={["Area", "Precincts", `Ballots ${after}`, "Ballot change", `Margin ${before}`, `Margin ${after}`, "Shift"]}
+    rows={rows.map((r) => [
+      r.note ? `${r.name} (${r.note})` : r.name,
+      String(r.precincts),
+      formatCount(r.ballots),
+      formatSignedPct(r.ballotsChangePct),
+      formatMargin(r.marginBefore),
+      formatMargin(r.marginAfter),
+      formatShift(r.shift),
+    ])}
+    numeric={[1, 2, 3, 4, 5, 6]}
+  />
+</figure>
+
+<style>
+  .area-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.25rem 0 0.75rem;
+  }
+  .area-picker[hidden] {
+    display: none;
+  }
+  .area-picker button {
+    font: inherit;
+    font-size: 0.9375rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-rule);
+    background: var(--color-surface);
+    color: var(--color-ink-2);
+    cursor: pointer;
+  }
+  .area-picker button:hover {
+    border-color: var(--color-ink);
+    color: var(--color-ink);
+  }
+  .area-picker button[aria-pressed="true"] {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-surface);
+  }
+  .area-shift :global([data-area]) {
+    transition: opacity 160ms ease;
+  }
+  .area-shift[data-selected] :global([data-area]) {
+    opacity: 0.18;
+  }
+  .area-shift[data-selected] :global([data-area].is-picked) {
+    opacity: 1;
+  }
+  .area-detail dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 0.75rem 1.5rem;
+    margin: 0.75rem 0 0;
+    padding: 0.9rem 0 0;
+    border-top: 1px solid var(--color-grid);
+  }
+  .area-detail dl[hidden] {
+    display: none;
+  }
+  .area-detail dt {
+    font-size: 0.8125rem;
+    color: var(--color-ink-2);
+  }
+  .area-detail dd {
+    margin: 0.1rem 0 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+</style>
+
+<script>
+  // Lets readers pick one part of the county. Without JavaScript, every row
+  // shows and the table view has all the numbers.
+  for (const fig of document.querySelectorAll<HTMLElement>(".area-shift")) {
+    const picker = fig.querySelector<HTMLElement>(".area-picker");
+    if (!picker) continue;
+    picker.hidden = false;
+    const buttons = picker.querySelectorAll<HTMLButtonElement>("button");
+    const pick = (slug: string) => {
+      buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.pick === slug)));
+      if (slug) fig.dataset.selected = slug;
+      else delete fig.dataset.selected;
+      fig.querySelectorAll("[data-area]").forEach((el) =>
+        el.classList.toggle("is-picked", (el as HTMLElement).dataset.area === slug),
+      );
+      fig.querySelectorAll<HTMLElement>("[data-detail]").forEach((dl) => {
+        dl.hidden = dl.dataset.detail !== slug;
+      });
+    };
+    buttons.forEach((b) => b.addEventListener("click", () => pick(b.dataset.pick ?? "")));
+  }
+</script>

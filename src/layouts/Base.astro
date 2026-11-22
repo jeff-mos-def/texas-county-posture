@@ -1,0 +1,136 @@
+---
+import "../styles/global.css";
+import { site, nav } from "../config";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = site.description } = Astro.props;
+const pageTitle = title ? `${title} | ${site.name}` : site.name;
+const path = Astro.url.pathname;
+const isCurrent = (href: string) =>
+  href === "/" ? path === "/" : path.startsWith(href);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:bg-surface focus:px-3 focus:py-2"
+    >
+      Skip to content
+    </a>
+    <header class="border-b border-rule">
+      <div class="wrap flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 py-4">
+        <a href="/" class="text-xl font-extrabold tracking-tight no-underline">{site.name}</a>
+        <nav aria-label="Main">
+          <ul class="flex flex-wrap gap-x-6 gap-y-1 text-[0.9375rem]">
+            {
+              nav.map((item) => (
+                <li>
+                  <a
+                    href={item.href}
+                    aria-current={isCurrent(item.href) ? "page" : undefined}
+                    class:list={[
+                      "no-underline hover:underline",
+                      isCurrent(item.href) ? "font-bold" : "text-ink-2",
+                    ]}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="mt-24 border-t border-rule">
+      <div class="wrap flex flex-wrap justify-between gap-6 py-8 text-sm text-ink-2">
+        <p class="max-w-md">
+          <span class="font-bold text-ink">{site.name}</span>. {site.description}
+        </p>
+        <ul class="flex flex-wrap gap-x-5 gap-y-1">
+          {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        </ul>
+      </div>
+    </footer>
+
+    <div class="tip" role="status" aria-live="polite" hidden></div>
+
+    <script>
+      // One tooltip for every chart and map. Marks carry their text in data-tip
+      // (or a <title> child, moved into data-tip so the browser's own tooltip
+      // doesn't double up). Values stay readable in each chart's table view.
+      const tip = document.querySelector<HTMLDivElement>(".tip")!;
+
+      for (const t of document.querySelectorAll(".viz svg title, .map svg title")) {
+        const parent = t.parentElement;
+        if (parent && !parent.dataset.tip) parent.dataset.tip = t.textContent ?? "";
+        t.remove();
+      }
+
+      let active: Element | null = null;
+
+      function show(el: HTMLElement | SVGElement, x: number, y: number) {
+        tip.textContent = el.dataset.tip ?? "";
+        tip.hidden = false;
+        const pad = 14;
+        const r = tip.getBoundingClientRect();
+        let left = x + pad;
+        let top = y + pad;
+        if (left + r.width > window.innerWidth - 8) left = x - r.width - pad;
+        if (top + r.height > window.innerHeight - 8) top = y - r.height - pad;
+        tip.style.left = `${Math.max(8, left)}px`;
+        tip.style.top = `${Math.max(8, top)}px`;
+      }
+
+      function hide() {
+        tip.hidden = true;
+        active?.classList.remove("is-hover");
+        active = null;
+      }
+
+      document.addEventListener("pointermove", (e) => {
+        const el = (e.target as Element | null)?.closest?.("[data-tip]") as
+          | HTMLElement
+          | SVGElement
+          | null;
+        if (!el) return hide();
+        if (active !== el) {
+          active?.classList.remove("is-hover");
+          active = el;
+          el.classList.add("is-hover");
+        }
+        show(el, e.clientX, e.clientY);
+      });
+
+      document.addEventListener("focusin", (e) => {
+        const el = (e.target as Element).closest?.("[data-tip]") as HTMLElement | null;
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        active = el;
+        show(el, r.left + r.width / 2, r.top + r.height / 2);
+      });
+      document.addEventListener("focusout", hide);
+      window.addEventListener("scroll", hide, { passive: true });
+    </script>
+  </body>
+</html>
